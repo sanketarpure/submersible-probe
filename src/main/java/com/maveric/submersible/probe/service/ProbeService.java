@@ -7,6 +7,7 @@ import com.maveric.submersible.probe.model.Grid;
 import com.maveric.submersible.probe.model.Position;
 import com.maveric.submersible.probe.model.Probe;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProbeService {
     private Probe currentProbe; // Store probe state (in-memory for simplicity)
 
@@ -40,10 +42,13 @@ public class ProbeService {
     }
 
     public CurrentPositionResponse getCurrentPosition() {
-        if (currentProbe == null) {
-            throw new IllegalStateException("Probe has not been initialized. Please navigate first.");
-        }
         CurrentPositionResponse response = new CurrentPositionResponse();
+        if (currentProbe == null) {
+            log.error("Probe has not been initialized. Please navigate first.");
+            response.setCurrentPosition(null);
+            response.setCurrentDirection(null);
+            return response;
+        }
         response.setCurrentPosition(currentProbe.getPosition());
         response.setCurrentDirection(currentProbe.getDirection());
         return response;
